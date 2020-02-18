@@ -1,0 +1,11 @@
+{
+  "typeAcquisition": {
+    "include": [
+      "googlemaps"
+    ]
+  },
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  }
+}

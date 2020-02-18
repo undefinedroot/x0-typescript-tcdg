@@ -1,0 +1,369 @@
+ts = js + type system
+
+type system:
+  - catch errors during dev
+  - type annotations (describe purpose)
+  - only on dev mode
+  - no performance optimization
+
+ts/tsx -> typescript compiler -> js code -> browser
+
+>> npm i -g typescript ts-node
+>> tsc --help
+
+
+compile code before executing
+>> tsc (..file..).ts
+>> node (..file..).js
+
+combine operation using ts-node instead.
+>> ts-node (..file..).ts
+
+syntax + feature vs design pattern with TS
+   (interface)       (reusability of code)
+
+
+type = property+function of a value (number, string, etc.)
+  ~ let compiler analyze our code for errors
+  ~ allow other developers to understand code flow
+
+kinds of types:
+  - primitive types:
+      number, boolean, void, undefined, string, symbol, null
+  - object types:
+      functions, arrays, classes, objects
+
+
+variable type annotations vs variable type inference
+
+  annotations: we tell what type of value a variable is
+             3 usage scenarios:
+              - function that returns 'any' type, always avoid variables with 'any' type
+                because typescript can't do any error checking on it.
+              - declared variable to be initialized later
+              - variables that cannot have inferred type clearly
+
+  inference: typescript figures out what type of value
+             if variable declaration and initialization is done on the
+             same line, then typescript will do type inference
+             (example: const name = 'john doe';)
+             if variable declaration has no initialization,
+             it is defined as 'any'
+
+
+function type annotation vs function type inference
+
+  annotation: manually specify type of arguments to receive and returned value type
+  inference: typescript figures out what is the returned value type
+
+object type annotation vs object type inference
+
+
+
+typed arrays: need consistent type, or to specify multiple types (example: const array: (string|bool)=[]; )
+
+
+Tuples: like an array but every element is a property,
+        more like an object converted to array but without property label
+        order of elements is critical
+
+        however, hard to represent data
+
+
+Interfaces + Classes = strong code reuse
+
+  Interface:
+    - create a new type describing property and it's value type
+    - their use is general, in which other objects can reuse them
+
+    functions = typed with Interface
+    classes/objects: implement interface
+
+  Classes:
+    - blueprint of an object with field and functions
+
+Access Modifiers (access restriction):
+      public = used anywhere (by default)
+      private = cannot be inherited by child classes or used outside
+      protected = can only be called by self and not outside and also child classes can access
+
+      if you add an access modifier in a child class,
+      you override that function/method or property
+
+
+parcel-bundler (replacement for ts-node)
+it compiles your source that has typescript and creates a javascript equivalent
+
+>> npm i -g parcel-bundler
+>> parcel index.html
+
+
+Type definition file:
+  - tells typescript compiler more about a javascript library.
+  - most of the time need to be installed manually
+  http://definitelytyped.org/
+  https://microsoft.github.io/TypeSearch/
+
+  example:
+  >> npm i faker
+  >> npm i @types/faker
+
+hold ctrl to change to link on the imported library to go to it's index.d.ts
+
+
+enable global access to imported @types/googlemaps
+
+    tsconfig.json
+      {
+        "typeAcquisition": {
+          "include": [
+            "googlemaps"
+          ]
+        }
+      }
+
+use 'implements' on classes for additional information error
+which will tell us which classes to update if the interface changes.
+
+
+>>tsc --init  // creates a tsconfig.json on the root directory
+
+modified tsconfig.json:
+
+  "outDir": "./build"
+  "rootDir": "./src"
+
+>>tsc -w // find all .ts file at root, and create .js at /build
+         // '-w' will alow typescript to watch the root folder to auto compile
+
+
+Type Guard:
+  - checking type of a value we are working with,
+    which restores the needed functions removed
+    during application of the union operator
+
+  'instanceof' keyword  (any value created with a constructor)
+  'typeof' keyword      (number, string, boolean, symbol) <- typescript only allows these to restore properties
+
+
+Abstract Class
+  - can't be used to create an object directly
+  - only used as a parent class
+  - can contain real implementation of some methods
+  - implemented methods can refer to methods that doesn't exist yet (label it 'abstract')
+  - can make child classes and promise to implement some other method
+
+
+Interface vs Abstract
+
+interface: type signature
+  - contract between different classes
+  - use when we have very different objects that we want to work together
+  - promotes loose coupling (independent between classes)
+  - mostly used for code reuse
+
+abstract classes: promise to implement a future property/method of a child class,
+                  this class can't be instantiated directly.
+  - contract between different classes
+  - use when we are trying to build up a definition of an object
+  - strongly couples classes to
+
+
+Important note during first setup:
+  when executing the script, you will get an error because
+  nodemon will attempt to run the scripts while tsc has not
+  yet finished the compilation, in this case, just restart
+  the commandline.
+
+
+Enum
+  - object that stores some closely related values, either number of strings
+  - if have small fixed set of values which are closely related and value are known at compile time
+  - for values that does not change unpredictably in the future
+
+
+Type Assertion
+  - telling typescript to consider a value as one of the possible values of a type, it overrides typescript behavior
+  - example: const g = 'A' as EnumStructure
+
+
+Generics
+  - like function arguments but for types in class/function definitions
+  - allow to define type of a property/argument/return value at a future point
+  - essential in writing reuseable code
+  - by convention, we use 'T' (example: class Car<T> {})
+
+
+Inheritance (Abstract Class + Generics) vs Composition (Interfaces)
+
+  Inheritance:
+    - Abstract Classes + Generics
+    - characterized by an 'is a' relationship between two classes.
+    - child classes has similar properties and methods, which they will inherit from parent class.
+    - borrow properties and methods from parent
+    - pitfall?: what if two child classes got similar method, but the implementation is entirely different
+        (but, we can override it by using access modifiers, but too much repetition due to
+         growing class heirarchy, and unexpected behavior)
+    - only use if having a bi-directional relationship
+
+  Composition:
+    - characterized by an 'has a' relationship between two classes.
+    - delegation to an outside object using Interface(s)
+    - more freedom
+    - the context of 'Composition' here is not combining properties and methods
+      from multiple classes (which is multiple inheritance), but instead,
+      it is by means of delegating functionality, we define the types of a property and method,
+      and it is up to the one that consumes it (in this case the class that will have to satisfy the Interface).
+    - Composition requires decoupling, no tight depedency on other classes, because it could cause unexpected behavior.
+    - We can 'swap' out different classes that has specific logic which will not influence other class implementation.
+    - There is a class that uses objects which satisfy a set of Interfaces, these objects will do the heavy lifting.
+    - Interfaces are used heavily, so that you don't depend on the class implementation, but the
+      class used will have to satisfy the Interfaces, thus, makes different classes swappable.
+    - more like a modular based approach
+    - composition is delegation
+    - check 'stats' project for a simple example, also 'web' project for a complicated example
+    - only use if having a one way relationship
+
+
+IMPORTANT NOTE:
+  - composition to delegate methods to other classes, we can swap their implementation while following interface rules
+  - inheritance to use base class, both the parent and child class can use the other's methods, dependent on each other
+
+
+static methods
+  nice technique in order to reduce code by not needing to always create a new object before utilizing a class.
+
+
+
+Generics
+  - typescript can do type inference, so even if you don't specify the type, as long as the value is used,
+    compiler tries to automatically determine the type.
+
+
+Generic Constraints:
+    - via interface using 'extends', defines the rules if a passed generic type is allowed
+    - can also use class
+
+      example:   function method1<T extends iCallable>(arg: T) {}
+      example2:  'extends keyof'
+        usage:
+          class myClass<T> {
+            constructor(private data: T) {}
+            // type of K can only be one of any keys of T
+            // typescript will do type inference, so no need to
+            // define the generic type when using this
+            myFunc<K extends keyof T>(key: K): T[K] {
+              return this.data[key]
+            }
+          }
+
+
+Type Alias:
+  - if you want to create a custom type
+  - example:
+      // Tupple
+      type myData = [Date, string];
+      // Function
+      type Callback = () => void;   // it means, a callback function without any return value
+      // creating a type out of a string
+      const MyType = 'custom';
+      const func = (arg: MyType): void => {} // this will not run without 'custom' value
+
+  - in typescript, strings can be types
+  - in js and ts, all object keys are strings
+  - therefore, an object key can be a type
+
+
+Type Union:
+  - use '|' between types, bad practice if used on a generic class
+    example:
+      const func = (): string | number => { .... }
+
+
+Accessor:
+  - using 'get'
+    example: get name(): string { return ... }
+    usage: class.name
+
+
+for-of vs for-in
+  - use for...of to iterate over the values in an iterable, like an array.
+      example:
+        const num = [1,2,3,4];
+        for (let val of num) { ... }
+
+  - use for...in to iterate over the properties of an object (object keys).
+      example:
+        const person = { name: 'john', age: 20 };
+        for (let detail in person) { ... }
+
+Decorators
+  - used to modify different properties/methods in the class
+  - not same as javascript decorators
+  - used in/on classes only
+  - 1st argument; prototype of the object
+  - 2nd argument; key of property/method/accesor
+  - 3rd argument; property descriptor
+  - they are applied when code for this class is ran (not when instantiated)
+  - decorator cannot get direct access to property values
+  - can also be used in arguments
+  - can also be used in static methods/properties/accessors
+  - executed once during declaration and not initialization
+  - important: at tsconfig.json, enable:
+      "experimentalDecorators": true
+      "emitDecoratorMetadata": true
+
+Property Descriptor
+  - object that has config options, part of ES5
+  - it is the list of options that describes a property/method/accessor
+  - Object.getOwnPropertyDescriptor(<object>,<string value of property>) // vanilla JS
+  - example;
+      >> const car = { make: 'tesla', year: 2020 }
+      >> Object.getOwnPropertyDescriptor(car, 'make');
+
+      output;
+      >> {value: "tesla", writable: true, enumerable: true, configurable: true }
+
+      >> Object.defineProperty(car, 'make', { writeable: false });
+      // now the property 'make' is read-only
+
+  - decorator factory: important if you want to add custom arguments to decorators
+
+
+Metadata
+  - extra information tied to a method or property... any kind of object
+
+
+Note on hardcoded strings;
+  always use Enums for it, to prevent typos.
+
+
+// creating an interface to extend Request interface.
+// because sometimes you have to in order for you to be sure
+// that types are appropriately handled, not all type definition files are good.
+interface RequestWithBody extends Request {
+  // override 'body'
+  body: { [key: string]: string | undefined };
+}
+
+
+Using React+Redux with Typescript (Pro vs Con)
+
+Pro
+  - easier to enforce correct code and types (excellent type safety)
+  - easier to understand logic flow
+  - easier to refactor
+
+Con
+  - problem on type definition files (*.d.ts)
+  - generics
+  - multiple imports
+  - redux is functional in nature, hard to integrate TS classes
+
+
+Creating React + Typescript project:
+>> npx create-react-app <project name> --template typescript
+
+- whenever you create a component, it requires interfaces for Props and State
+- sometimes libraries doesn't provide the type definitions so we have to compromise
+- important to have division of responsibilities, need to breakdown code into different files

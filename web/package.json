@@ -1,0 +1,22 @@
+{
+  "devDependencies": {
+    "typescript": "^3.7.4"
+  },
+  "name": "web",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.19.1",
+    "concurrently": "^5.0.2",
+    "nodemon": "^2.0.2"
+  },
+  "scripts": {
+    "start:parcel": "parcel index.html",
+    "start:jsonserver": "json-server -w db.json",
+    "start": "concurrently npm:start:*"
+  },
+  "keywords": [],
+  "author": "undefinedroot",
+  "license": "ISC",
+  "description": ""
+}

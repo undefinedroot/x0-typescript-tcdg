@@ -1,0 +1,55 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// make interface that defines the property object
+interface AppProps {
+  color?: string; // set as an optional property
+}
+
+// // using functional components, ALWAYS annotate the return type (JSX.Element)
+// const App = (props: AppProps): JSX.Element => {
+//   return <div>{props.color}</div>;
+// };
+
+//
+// ---- using CLASS COMPONENT -----
+//
+// make interface that defines the state object
+interface AppState {
+  counter: number;
+}
+
+// Component is a generic type
+// React.Component<Props, State>
+class App extends React.Component<AppProps, AppState> {
+  // unexpected behavior in typescript with react:
+  // 1) can define 'state' outside constructor to override 'state' from React.Component
+  //        state = { number: 0}; // type inference to 'number'
+  // 2) can define 'state' as long as you pass in a interface type definition
+  // 3) only select one of the other (#1 or #2) DO NOT MIX
+
+  constructor(props: AppProps) {
+    super(props);
+    this.state = { counter: 0 };
+  }
+
+  onIncrement = (): void => {
+    this.setState({ counter: this.state.counter + 1 });
+  };
+
+  onDecrement = (): void => {
+    this.setState({ counter: this.state.counter - 1 });
+  };
+
+  render() {
+    return (
+      <div>
+        <button onClick={this.onIncrement}>Increment</button>
+        <button onClick={this.onDecrement}>Decrement</button>
+        {this.state.counter}
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App color="red" />, document.querySelector('#root'));

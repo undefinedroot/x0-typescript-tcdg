@@ -1,0 +1,1 @@
+these files are not used in the project, it is just here as an example (for Abstract Classes and Generics)
